@@ -117,7 +117,7 @@ export const BloomGallery: React.FC = () => {
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
 
-              className="bg-white/90 backdrop-blur-xl rounded-3xl overflow-hidden max-w-2xl w-full shadow-2xl relative border border-white/50"
+              className="bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden max-w-2xl w-full shadow-2xl relative border border-white/50"
             >
               <button
                 onClick={() => setSelectedBloom(null)}

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
-export const ParticleField: React.FC<{ count?: number }> = ({ count = 50 }) => {
+const PI2 = Math.PI * 2;
+
+export const ParticleField: React.FC<{ count?: number }> = ({ count = 30 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -10,8 +12,9 @@ export const ParticleField: React.FC<{ count?: number }> = ({ count = 50 }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let width = canvas.width = canvas.offsetWidth;
-    let height = canvas.height = canvas.offsetHeight;
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    let animationFrameId: number;
 
     interface Particle {
       type: 'heart' | 'petal';
@@ -31,12 +34,14 @@ export const ParticleField: React.FC<{ count?: number }> = ({ count = 50 }) => {
     const particles: Particle[] = [];
     const colors = ['#FDA4AF', '#FECDD3', '#F43F5E', '#FFFFFF']; // Pink, Light Pink, Rose, White
 
-    const createParticle = (): Particle => {
+    const createParticle = (resetY?: boolean): Particle => {
       const type = Math.random() > 0.6 ? 'heart' : 'petal';
       return {
         type,
         x: Math.random() * width,
-        y: Math.random() * height,
+        y: resetY
+          ? (type === 'heart' ? height + 50 : -50)
+          : Math.random() * height,
         size: type === 'heart' ? Math.random() * 15 + 10 : Math.random() * 8 + 5,
         speedY: type === 'heart' ? Math.random() * 0.5 + 0.2 : Math.random() * 1 + 0.5,
         speedX: 0,
@@ -53,37 +58,28 @@ export const ParticleField: React.FC<{ count?: number }> = ({ count = 50 }) => {
       particles.push(createParticle());
     }
 
-    // Heart shape helper
+    // Optimized Draw Functions
     const drawHeart = (x: number, y: number, size: number, opacity: number) => {
-      ctx.save();
       ctx.globalAlpha = opacity;
       ctx.fillStyle = '#E11D48';
       ctx.beginPath();
-      const topCurveHeight = size * 0.3;
-      ctx.moveTo(x, y + topCurveHeight);
-      ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + topCurveHeight);
-      ctx.bezierCurveTo(x - size / 2, y + (size + topCurveHeight) / 2, x, y + (size * 0.8) + topCurveHeight, x, y + size);
-      ctx.bezierCurveTo(x, y + (size * 0.8) + topCurveHeight, x + size / 2, y + (size + topCurveHeight) / 2, x + size / 2, y + topCurveHeight);
-      ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
+      // Simplified Heart
+      const s = size / 2;
+      ctx.moveTo(x, y + s * 0.3);
+      ctx.bezierCurveTo(x, y, x - s, y, x - s, y + s * 0.3);
+      ctx.bezierCurveTo(x - s, y + s * 1.3, x, y + s * 1.6, x, y + s * 2);
+      ctx.bezierCurveTo(x, y + s * 1.6, x + s, y + s * 1.3, x + s, y + s * 0.3);
+      ctx.bezierCurveTo(x + s, y, x, y, x, y + s * 0.3);
       ctx.fill();
-      ctx.restore();
     };
 
-    // Petal shape helper
     const drawPetal = (x: number, y: number, size: number, rotation: number, color: string, opacity: number) => {
-      ctx.save();
       ctx.globalAlpha = opacity;
       ctx.fillStyle = color;
-      ctx.translate(x, y);
-      ctx.rotate(rotation);
       ctx.beginPath();
-      // Simple oval petal
-      ctx.ellipse(0, 0, size / 2, size, 0, 0, Math.PI * 2);
+      ctx.ellipse(x, y, size / 2, size, rotation, 0, PI2);
       ctx.fill();
-      ctx.restore();
     };
-
-    let animationFrameId: number;
 
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
@@ -98,7 +94,7 @@ export const ParticleField: React.FC<{ count?: number }> = ({ count = 50 }) => {
           p.y += p.speedY;
           p.rotation += p.rotationSpeed;
           p.swing += p.swingStep;
-          p.x += Math.sin(p.swing) * 1; // More sway for petals
+          p.x += Math.sin(p.swing) * 1;
         }
 
         // Draw based on type
@@ -113,13 +109,7 @@ export const ParticleField: React.FC<{ count?: number }> = ({ count = 50 }) => {
         const isOut = isHeart ? p.y < -50 : p.y > height + 50;
 
         if (isOut) {
-          particles[i] = createParticle();
-          // Reset position based on type
-          if (particles[i].type === 'heart') {
-            particles[i].y = height + 50;
-          } else {
-            particles[i].y = -50;
-          }
+          particles[i] = createParticle(true);
         }
       });
 

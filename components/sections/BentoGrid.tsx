@@ -57,7 +57,7 @@ export const BentoGrid: React.FC = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="md:col-span-4 bg-white/60 backdrop-blur-md rounded-3xl p-8 flex flex-col justify-center items-start shadow-sm border border-white/50 hover:shadow-md transition-shadow"
+            className="md:col-span-4 bg-white/60 backdrop-blur-sm rounded-3xl p-8 flex flex-col justify-center items-start shadow-sm border border-white/50 hover:shadow-md transition-shadow"
           >
             <span className="text-6xl font-display text-accent leading-none mb-4">"</span>
             <p className="font-display italic text-2xl text-charcoal/80 mb-2">
@@ -93,7 +93,7 @@ export const BentoGrid: React.FC = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
             onClick={() => setIsGiftOpen(true)}
-            className="md:col-span-4 bg-white/60 backdrop-blur-md rounded-3xl p-8 flex items-center justify-center relative overflow-hidden shadow-sm border border-white/50 group cursor-pointer hover:shadow-xl transition-all"
+            className="md:col-span-4 bg-white/60 backdrop-blur-sm rounded-3xl p-8 flex items-center justify-center relative overflow-hidden shadow-sm border border-white/50 group cursor-pointer hover:shadow-xl transition-all"
           >
             <div className="relative z-10 text-center flex flex-col items-center">
               <div className="w-40 h-40 relative flex items-center justify-center">

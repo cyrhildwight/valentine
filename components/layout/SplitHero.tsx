@@ -66,12 +66,14 @@ export const SplitHero: React.FC = () => {
       className="relative min-h-screen w-full flex flex-col lg:flex-row overflow-hidden"
       onMouseMove={handleMouseMove}
     >
-
-      {/* Left Side - Image with Reveal Animation & Parallax */}
-      <div className="w-full lg:w-1/2 h-[50vh] lg:h-auto lg:min-h-screen relative overflow-hidden z-10 bg-black/5">
+      {/* Optimized Parallax Container */}
+      <div className="w-full lg:w-1/2 h-[50vh] lg:h-auto lg:min-h-screen relative overflow-hidden z-10 bg-black/5 will-change-transform">
         <motion.div
           className="w-full h-full relative"
           style={{ x: mouseX, y: combinedY, scale: 1.05 }}
+          initial={{ opacity: 0, scale: 1.4, filter: "blur(20px)" }}
+          animate={{ opacity: 1, scale: 1.05, filter: "blur(0px)" }}
+          transition={{ duration: 2.5, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="absolute inset-0 bg-black/20 z-10" />
           <motion.img
