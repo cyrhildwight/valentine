@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-center mb-12">
           <div className="flex items-center gap-3 mb-6 md:mb-0">
             <Heart className="w-6 h-6 text-primary fill-primary" />
-            <span className="font-display text-2xl tracking-wider">ETERNAL BLOOM</span>
+            <span className="font-display text-2xl tracking-wider">Dwight</span>
           </div>
 
           <div className="flex gap-6">

@@ -63,7 +63,7 @@ export const Navigation: React.FC = () => {
           <div className="flex items-center gap-2">
             <Heart className="w-5 h-5 text-primary fill-primary" />
             <span className="font-display font-bold text-xl tracking-wide text-gradient-gold">
-              CYRHIL DWIGHT
+              ETERNAL BLOOM
             </span>
           </div>
           <div className="flex items-center gap-6">
