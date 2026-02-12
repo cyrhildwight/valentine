@@ -7,32 +7,38 @@ import { MagneticButton } from '../animations/MagneticButton';
 export const Navigation: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [name, setName] = useState('');
+  const [senderName, setSenderName] = useState('');
+  const [recipientName, setRecipientName] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('');
   const [message, setMessage] = useState('');
   const { scrollY } = useScroll();
 
   const handleSendLove = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !message) return;
+    if (!senderName || !message || !recipientEmail || !recipientName) return;
 
     // EmailJS Configuration
-    const serviceId = "service_wg7tyyo"; // Get this from EmailJS dashboard (e.g., "service_gmail")
-    const templateId = "template_gxd5a26"; // Get this from EmailJS dashboard (e.g., "template_love_note")
-    const publicKey = "rP4hlxy4iSWVRh33q"; // Your provided Public Key
+    const serviceId = "service_wv1hsuf";
+    const templateId = "template_kcdgmrl";
+    const publicKey = "H3ukxoKBdDPTt0kob";
 
-    // Template parameters must match your EmailJS template variables like {{from_name}}, {{message}}
+    // Template parameters must match your EmailJS template variables
+    // IMPORTANT: In your EmailJS dashboard, ensure your template uses {{to_email}} in the "To Email" field
     const templateParams = {
-      from_name: name,
+      from_name: senderName,
+      to_name: recipientName,
+      to_email: recipientEmail,
       message: message,
-      to_name: "Cyrhil Dwight"
     };
 
     emailjs.send(serviceId, templateId, templateParams, publicKey)
       .then((response) => {
         console.log('SUCCESS!', response.status, response.text);
-        alert('Your love note has been sent successfully!');
+        alert(`Your love note has been sent to ${recipientName}!`);
         setIsModalOpen(false);
-        setName('');
+        setSenderName('');
+        setRecipientName('');
+        setRecipientEmail('');
         setMessage('');
       }, (err) => {
         console.log('FAILED...', err);
@@ -109,17 +115,42 @@ export const Navigation: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-display font-bold text-2xl text-charcoal">Send Your Love</h3>
-                    <p className="text-gray-500 text-sm">Write a heartfelt message</p>
+                    <p className="text-gray-500 text-sm">Send a message to your special someone</p>
                   </div>
                 </div>
 
                 <form onSubmit={handleSendLove} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">To (Name)</label>
+                      <input
+                        type="text"
+                        value={recipientName}
+                        onChange={(e) => setRecipientName(e.target.value)}
+                        placeholder="Recipient's Name"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-gray-400"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">To (Email)</label>
+                      <input
+                        type="email"
+                        value={recipientEmail}
+                        onChange={(e) => setRecipientEmail(e.target.value)}
+                        placeholder="recipient@email.com"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-gray-400"
+                        required
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">From (Your Name)</label>
                     <input
                       type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      value={senderName}
+                      onChange={(e) => setSenderName(e.target.value)}
                       placeholder="Who is this love from?"
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-gray-400"
                       required
