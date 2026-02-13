@@ -16,7 +16,7 @@ export const BentoGrid: React.FC = () => {
   }, []);
 
   return (
-    <section id="memories" className="py-24 bg-gradient-to-b from-[#FDFBF7] to-white overflow-hidden relative">
+    <section id="memories" className="py-24 bg-gradient-to-b from-cream to-white overflow-hidden relative">
       {/* Watermark */}
       <motion.div
         style={{ x }}

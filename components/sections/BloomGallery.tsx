@@ -40,7 +40,7 @@ export const BloomGallery: React.FC = () => {
   const x = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
+    <section className="py-24 bg-gradient-to-b from-cream to-white relative overflow-hidden">
       {/* Parallax Watermark */}
       <motion.div
         style={{ x }}
