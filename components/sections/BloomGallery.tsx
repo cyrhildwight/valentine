@@ -8,28 +8,28 @@ const blooms = [
     id: 1,
     name: 'The Resilient Rose',
     desc: 'Strength & Passion',
-    image: '/images/rose.png',
+    image: '/images/rose.webp',
     message: "Your strength and passion inspire everyone around you. Like a rose, you bloom with resilience and grace, turning every challenge into something beautiful."
   },
   {
     id: 2,
     name: 'The Sunny Wildflower',
     desc: 'Joy & Laughter',
-    image: '/images/wildflower.png',
+    image: '/images/wildflower.webp',
     message: "Your joy is infectious, and your laughter acts as a beacon of light. You are wild, free, and beautifully unique, growing wherever you choose to be."
   },
   {
     id: 3,
     name: 'The Elegant Lily',
     desc: 'Grace & Purity',
-    image: '/images/lily.png',
+    image: '/images/lily.webp',
     message: "In a world of noise, your elegance and purity stand out. You carry yourself with a quiet, powerful grace that commands respect and admiration."
   },
   {
     id: 4,
     name: 'The Vivid Lavender',
     desc: 'Peace & Wisdom',
-    image: '/images/lavender.png',
+    image: '/images/lavender.webp',
     message: "Your wisdom brings peace to those who know you. You are a calming presence in a chaotic world, offering clarity and comfort to all."
   },
 ];

@@ -77,7 +77,7 @@ export const SplitHero: React.FC = () => {
         >
           <div className="absolute inset-0 bg-black/20 z-10" />
           <motion.img
-            src="/images/hero-rose.png"
+            src="/images/hero-rose.webp"
             alt="Deep Red Rose with Droplets"
             className="w-full h-full object-cover"
             initial={{ scale: 1.1, filter: "blur(10px)" }}

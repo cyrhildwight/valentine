@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dwight-valentines.vercel.app/sitemap.xml

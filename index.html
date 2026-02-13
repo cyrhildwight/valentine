@@ -1,78 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Eternal Bloom | A Celebration of Grace</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: '#E11D48',      // Deep Rose
-              secondary: '#F472B6',    // Soft Pink  
-              accent: '#FDE68A',       // Champagne Gold
-              dark: '#881337',         // Burgundy
-              cream: '#FDF2F8',        // Cream background
-              charcoal: '#374151',     // Text dark
-            },
-            fontFamily: {
-              display: ['Playfair Display', 'serif'],
-              body: ['Inter', 'sans-serif'],
-              accent: ['Cormorant Garamond', 'serif'],
-            },
-            animation: {
-              'spin-slow': 'spin 20s linear infinite',
-              'float': 'float 6s ease-in-out infinite',
-            },
-            keyframes: {
-              float: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-20px)' },
-              }
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eternal Bloom | A Celebration of Grace</title>
+  <meta name="description"
+    content="A beautiful digital celebration of love and grace for Valentine's Day. Explore the floral symphony and cherished memories.">
+  <meta name="keywords" content="Valentine's Day, Love, Grace, Eternal Bloom, Digital Card, Celebration">
+  <meta name="author" content="Your Name">
+  <link rel="canonical" href="https://dwight-valentines.vercel.app/">
+  <link rel="icon" type="image/webp" href="/images/rose.webp" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dwight-valentines.vercel.app/">
+  <meta property="og:title" content="Eternal Bloom | A Celebration of Grace">
+  <meta property="og:description"
+    content="A beautiful digital celebration of love and grace for Valentine's Day. Explore the floral symphony and cherished memories.">
+  <meta property="og:image" content="https://dwight-valentines.vercel.app/images/hero-rose.webp">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://dwight-valentines.vercel.app/">
+  <meta property="twitter:title" content="Eternal Bloom | A Celebration of Grace">
+  <meta property="twitter:description"
+    content="A beautiful digital celebration of love and grace for Valentine's Day. Explore the floral symphony and cherished memories.">
+  <meta property="twitter:image" content="https://dwight-valentines.vercel.app/images/hero-rose.webp">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#E11D48',      // Deep Rose
+            secondary: '#F472B6',    // Soft Pink  
+            accent: '#FDE68A',       // Champagne Gold
+            dark: '#881337',         // Burgundy
+            cream: '#FDF2F8',        // Cream background
+            charcoal: '#374151',     // Text dark
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            body: ['Inter', 'sans-serif'],
+            accent: ['Cormorant Garamond', 'serif'],
+          },
+          animation: {
+            'spin-slow': 'spin 20s linear infinite',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
             }
           }
         }
       }
-    </script>
-    <style>
-      body {
-        background-color: #FDF2F8;
-        color: #374151;
-        overflow-x: hidden;
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FDF2F8;
+      color: #374151;
+      overflow-x: hidden;
+    }
+
+    .text-gradient-gold {
+      background: linear-gradient(135deg, #B45309 0%, #FDE68A 50%, #B45309 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% auto;
+      animation: shine 5s linear infinite;
+    }
+
+    .text-gradient-pink {
+      background: linear-gradient(135deg, #E11D48 0%, #F472B6 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    @keyframes shine {
+      to {
+        background-position: 200% center;
       }
-      .text-gradient-gold {
-        background: linear-gradient(135deg, #B45309 0%, #FDE68A 50%, #B45309 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-size: 200% auto;
-        animation: shine 5s linear infinite;
-      }
-      .text-gradient-pink {
-        background: linear-gradient(135deg, #E11D48 0%, #F472B6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-      @keyframes shine {
-        to {
-          background-position: 200% center;
-        }
-      }
-      .glass-card {
-        background: rgba(255, 255, 255, 0.4);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
-    </style>
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -84,10 +115,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body>
-    <div id="root"></div>
+
+<body>
+  <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>
