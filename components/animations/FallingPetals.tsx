@@ -28,7 +28,7 @@ export const FallingPetals: React.FC<{ count?: number }> = ({ count = 50 }) => {
     }
 
     // Deep rose, soft pink, champagne/pale, white
-    const colors = ['#E11D48', '#F472B6', '#FBCFE8', '#FFF1F2']; 
+    const colors = ['#E11D48', '#F472B6', '#FBCFE8', '#FFF1F2'];
 
     const createPetal = (initialY?: number): Petal => ({
       x: Math.random() * width,
@@ -47,7 +47,7 @@ export const FallingPetals: React.FC<{ count?: number }> = ({ count = 50 }) => {
     const petals: Petal[] = [];
     // Pre-populate particles across the screen height so it doesn't start empty
     for (let i = 0; i < count; i++) {
-      petals.push(createPetal(Math.random() * height)); 
+      petals.push(createPetal(Math.random() * height));
     }
 
     let animationFrameId: number;
@@ -67,24 +67,24 @@ export const FallingPetals: React.FC<{ count?: number }> = ({ count = 50 }) => {
         }
 
         ctx.save();
-        
+
         // Calculate dynamic opacity for fade out at bottom (last 150px)
         const fadeStart = height - 150;
         let currentOpacity = p.opacity;
         if (p.y > fadeStart) {
-            const fadeProgress = (p.y - fadeStart) / 150;
-            currentOpacity = Math.max(0, p.opacity * (1 - fadeProgress));
+          const fadeProgress = (p.y - fadeStart) / 150;
+          currentOpacity = Math.max(0, p.opacity * (1 - fadeProgress));
         }
-        
+
         ctx.globalAlpha = currentOpacity;
         ctx.fillStyle = p.color;
-        
+
         // Move to position
         ctx.translate(p.x, p.y);
         // Rotate in 2D
         ctx.rotate(p.rotation * Math.PI / 180);
         // Simulate 3D flip
-        ctx.scale(1, Math.abs(Math.cos(p.flip))); 
+        ctx.scale(1, Math.abs(Math.cos(p.flip)));
 
         // Draw Petal Shape
         ctx.beginPath();
