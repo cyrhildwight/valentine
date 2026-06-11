@@ -31,46 +31,49 @@ export const Navigation: React.FC<NavigationProps> = ({
   const [cooldownRemaining, setCooldownRemaining] = useState<string | null>(null);
   // PWA install prompt handling
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
 
   useEffect(() => {
-    // On mount, check if app is already installed or user dismissed prompt
+    // Don't show if already running as installed PWA
     if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
       return;
     }
-    const dismissed = localStorage.getItem('install_prompt_dismissed') === 'true';
+    // Don't show if user already dismissed
+    if (localStorage.getItem('install_prompt_dismissed') === 'true') {
+      return;
+    }
+
     const handleBeforeInstall = (e: Event) => {
+      // Prevent the browser's default mini-infobar
       e.preventDefault();
       const ev = e as any;
+      // Save the event so we can trigger it later on button click
       setDeferredPrompt(ev);
-      if (!dismissed) {
-        ev.prompt();
-        ev.userChoice.then((choice: any) => {
-          if (choice.outcome === 'accepted') {
-            // Installed, clear dismissed flag
-            localStorage.removeItem('install_prompt_dismissed');
-          } else {
-            // User dismissed the native prompt
-            localStorage.setItem('install_prompt_dismissed', 'true');
-          }
-        });
-      }
+      // Automatically show our custom banner
+      setShowInstallBanner(true);
     };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    // If the event has already fired before this script runs, trigger prompt now
-    if (!dismissed && (window as any).deferredPrompt) {
-      const ev = (window as any).deferredPrompt;
-      setDeferredPrompt(ev);
-      ev.prompt();
-      ev.userChoice.then((choice: any) => {
-        if (choice.outcome === 'accepted') {
-          localStorage.removeItem('install_prompt_dismissed');
-        } else {
-          localStorage.setItem('install_prompt_dismissed', 'true');
-        }
-      });
-    }
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-}, []);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      localStorage.removeItem('install_prompt_dismissed');
+    } else {
+      localStorage.setItem('install_prompt_dismissed', 'true');
+    }
+    setDeferredPrompt(null);
+    setShowInstallBanner(false);
+  };
+
+  const handleDismissBanner = () => {
+    localStorage.setItem('install_prompt_dismissed', 'true');
+    setShowInstallBanner(false);
+  };
 
 
   // Monitor cooldown remaining dynamically
@@ -319,6 +322,40 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   return (
     <>
+      {/* PWA Install Banner — fixed at very top of the page */}
+      <AnimatePresence>
+        {showInstallBanner && (
+          <motion.div
+            initial={{ y: -80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -80, opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between gap-3 px-4 py-2.5 bg-gradient-to-r from-primary to-secondary shadow-lg"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Heart className="w-4 h-4 text-white fill-white/30 flex-shrink-0" />
+              <p className="text-white text-xs font-medium truncate">
+                Install <span className="font-bold">Whisper &amp; Bloom</span> for a better experience!
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={handleInstallClick}
+                className="bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-full border border-white/30 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+              >
+                Install App
+              </button>
+              <button
+                onClick={handleDismissBanner}
+                className="p-1 hover:bg-white/20 rounded-full transition-colors"
+                aria-label="Dismiss install prompt"
+              >
+                <X className="w-4 h-4 text-white/80" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
