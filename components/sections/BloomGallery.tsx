@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
-import { X, MessageSquare } from 'lucide-react';
+import { X, MessageSquare, Heart, Mail } from 'lucide-react';
 import { variants } from '../../lib/animations';
 
 const confessions = [
@@ -62,15 +62,16 @@ export const BloomGallery: React.FC<BloomGalleryProps> = ({ theme }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const { scrollYProgress } = useScroll();
-  const x = useTransform(scrollYProgress, [0, 1], [0, -100]);
-
   const { scrollYProgress: boardScrollProgress } = useScroll({
     target: boardRef,
     offset: ["start end", "end start"]
   });
 
   const smoothBoardProgress = useSpring(boardScrollProgress, { stiffness: 90, damping: 25 });
+  
+  // Center the watermark horizontally when the section is centered in the viewport
+  const x = useTransform(smoothBoardProgress, [0, 0.5, 1], [120, 0, -120]);
+
   const y1 = useTransform(smoothBoardProgress, [0, 1], [30, -30]);
   const y2 = useTransform(smoothBoardProgress, [0, 1], [-20, 20]);
   const y3 = useTransform(smoothBoardProgress, [0, 1], [40, -40]);
@@ -126,21 +127,43 @@ export const BloomGallery: React.FC<BloomGalleryProps> = ({ theme }) => {
   const getModalStyle = () => {
     if (theme === 'light') {
       return {
-        card: 'bg-[#fdfbf7] border-4 border-double border-amber-900/30 text-charcoal',
-        text: 'text-charcoal',
-        quote: 'text-charcoal/90',
-        decor: 'text-charcoal/30',
-        divider: 'border-amber-900/20',
-        btn: 'bg-[#b45309] hover:bg-[#92400e] text-white'
+        overlay: 'bg-black/70 backdrop-blur-lg',
+        wrapper: 'bg-gradient-to-b from-[#fff8f8] to-[#fdf0f2] border border-rose-200/60 shadow-[0_40px_80px_rgba(0,0,0,0.25),0_0_0_1px_rgba(244,63,94,0.08)]',
+        envelopeFlap: 'from-rose-200 via-pink-100 to-amber-100',
+        headerBg: 'from-rose-400 via-pink-400 to-rose-500',
+        iconRing: 'bg-white/90 shadow-[0_0_0_4px_rgba(244,63,94,0.15),0_8px_20px_rgba(0,0,0,0.15)]',
+        iconColor: 'text-primary',
+        titleColor: 'text-charcoal',
+        subtitleColor: 'text-charcoal/50',
+        quoteColor: 'text-charcoal/85',
+        quoteGlyph: 'text-primary/20',
+        divider: 'border-rose-200/60',
+        fromBadge: 'bg-rose-50 border-rose-200 text-primary',
+        sealBg: 'bg-gradient-to-br from-rose-500 to-pink-600 shadow-[0_4px_15px_rgba(244,63,94,0.4)]',
+        closeBtn: 'bg-rose-50 hover:bg-rose-100 text-charcoal/60 hover:text-charcoal',
+        closeBtnFull: 'bg-gradient-to-r from-rose-500 to-pink-600 text-white hover:shadow-[0_8px_20px_rgba(244,63,94,0.4)] hover:scale-[1.02]',
+        lineDecor: 'bg-rose-200/60',
+        tagBg: 'bg-rose-100 text-rose-700 border-rose-200'
       };
     } else {
       return {
-        card: 'bg-[#12090b] border-y-4 border-primary border-l border-r border-white/5 text-white',
-        text: 'text-white',
-        quote: 'text-pink-100/90',
-        decor: 'text-gray-500',
+        overlay: 'bg-black/85 backdrop-blur-xl',
+        wrapper: 'bg-[#0f0508] border border-white/5 shadow-[0_40px_100px_rgba(0,0,0,0.7),0_0_60px_rgba(244,63,94,0.08),0_0_0_1px_rgba(255,255,255,0.03)]',
+        envelopeFlap: 'from-[#1f0b10] via-[#2a0d14] to-[#1a0a0d]',
+        headerBg: 'from-rose-900/60 via-pink-950/40 to-transparent',
+        iconRing: 'bg-[#1a0810] shadow-[0_0_0_4px_rgba(244,63,94,0.15),0_0_30px_rgba(244,63,94,0.3),0_8px_20px_rgba(0,0,0,0.5)]',
+        iconColor: 'text-rose-400',
+        titleColor: 'text-white',
+        subtitleColor: 'text-gray-500',
+        quoteColor: 'text-pink-100/90',
+        quoteGlyph: 'text-rose-500/15',
         divider: 'border-white/5',
-        btn: 'bg-gradient-to-r from-primary to-secondary text-white'
+        fromBadge: 'bg-rose-950/60 border-rose-500/20 text-rose-300',
+        sealBg: 'bg-gradient-to-br from-rose-500 to-pink-600 shadow-[0_4px_25px_rgba(244,63,94,0.6),0_0_40px_rgba(244,63,94,0.2)]',
+        closeBtn: 'bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white',
+        closeBtnFull: 'bg-gradient-to-r from-rose-500 to-pink-600 text-white hover:shadow-[0_8px_30px_rgba(244,63,94,0.5)] hover:scale-[1.02]',
+        lineDecor: 'bg-white/5',
+        tagBg: 'bg-rose-950/40 text-rose-400 border-rose-500/20'
       };
     }
   };
@@ -225,45 +248,145 @@ export const BloomGallery: React.FC<BloomGalleryProps> = ({ theme }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
             onClick={() => setSelectedConfession(null)}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${modalStyles.overlay}`}
           >
+            {/* Floating ambient glow */}
+            <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-rose-500/5 rounded-full blur-[120px]" />
+            </div>
+
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.88, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 22, stiffness: 280 }}
               onClick={(e) => e.stopPropagation()}
-              className={`rounded-3xl overflow-hidden max-w-lg w-full shadow-2xl relative p-10 flex flex-col justify-center transition-all duration-300 ${modalStyles.card}`}
+              className={`relative rounded-3xl overflow-hidden max-w-md w-full transition-colors duration-300 ${modalStyles.wrapper}`}
             >
-              {/* Postcard Decor */}
-              <div className={`absolute top-4 left-4 text-[9px] tracking-[0.2em] font-mono uppercase font-bold ${modalStyles.decor}`}>CONFESSION NOTE</div>
+              {/* Header gradient band */}
+              <div className={`relative w-full h-32 bg-gradient-to-b ${modalStyles.headerBg} flex items-end justify-center pb-0`}>
+                {/* Decorative lines */}
+                <div className="absolute top-5 left-6 flex gap-1.5">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className={`h-0.5 rounded-full ${modalStyles.lineDecor}`} style={{ width: `${20 - i * 5}px` }} />
+                  ))}
+                </div>
+                <div className="absolute top-5 right-6 flex gap-1.5">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className={`h-0.5 rounded-full ${modalStyles.lineDecor}`} style={{ width: `${10 + i * 5}px` }} />
+                  ))}
+                </div>
+
+                {/* Small label */}
+                <div className={`absolute top-5 left-1/2 -translate-x-1/2 text-[9px] tracking-[0.3em] font-mono font-bold uppercase ${modalStyles.subtitleColor}`}>
+                  A RANDOM WHISPER
+                </div>
+
+                {/* Floating envelope icon */}
+                <motion.div
+                  initial={{ y: 10, scale: 0.7, opacity: 0 }}
+                  animate={{ y: 0, scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.15, type: 'spring', damping: 18, stiffness: 260 }}
+                  className={`w-14 h-14 rounded-full flex items-center justify-center absolute -bottom-7 left-1/2 -translate-x-1/2 ${modalStyles.iconRing}`}
+                >
+                  <Mail className={`w-6 h-6 ${modalStyles.iconColor}`} strokeWidth={1.5} />
+                </motion.div>
+              </div>
+
+              {/* Close button */}
               <button
                 onClick={() => setSelectedConfession(null)}
-                className="absolute top-4 right-4 z-10 p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-colors"
+                className={`absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full transition-all ${modalStyles.closeBtn}`}
               >
-                <X className="w-5 h-5 opacity-60 hover:opacity-100" />
+                <X className="w-4 h-4" strokeWidth={2.5} />
               </button>
 
-              <div className={`mb-4 pb-3 border-b border-dashed mt-4 ${modalStyles.divider}`}>
-                <div className="font-display font-bold text-sm tracking-wider text-primary uppercase">{selectedConfession.to}</div>
-                <div className={`text-[10px] mt-0.5 opacity-60`}>{selectedConfession.desc}</div>
-              </div>
+              {/* Body */}
+              <div className="px-8 pt-12 pb-8 flex flex-col gap-5">
 
-              <div className="relative py-4">
-                <span className="text-7xl font-display text-primary/10 absolute -top-8 -left-4 font-bold select-none">“</span>
-                <p className={`font-handwriting text-3xl leading-relaxed italic relative z-10 pl-4 ${modalStyles.quote}`}>
-                  {selectedConfession.message}
-                </p>
-              </div>
+                {/* To/From header */}
+                <div className="text-center">
+                  <motion.h3
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className={`font-display font-bold text-lg tracking-tight ${modalStyles.titleColor}`}
+                  >
+                    {selectedConfession.to}
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.28 }}
+                    className={`text-[10px] uppercase tracking-[0.2em] font-semibold mt-0.5 ${modalStyles.subtitleColor}`}
+                  >
+                    {selectedConfession.desc}
+                  </motion.p>
+                </div>
 
-              <div className={`mt-8 flex justify-between items-center border-t border-dashed pt-4 ${modalStyles.divider}`}>
-                <span className="font-handwriting text-2xl text-primary font-bold">{selectedConfession.from}</span>
-                <button
-                  onClick={() => setSelectedConfession(null)}
-                  className={`px-6 py-2 rounded-full text-xs font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all ${modalStyles.btn}`}
+                {/* Divider */}
+                <div className={`flex items-center gap-3`}>
+                  <div className={`flex-1 h-px ${modalStyles.lineDecor}`} />
+                  <Heart className="w-3 h-3 text-rose-400 fill-rose-400 opacity-60" />
+                  <div className={`flex-1 h-px ${modalStyles.lineDecor}`} />
+                </div>
+
+                {/* Quote body */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="relative px-2"
                 >
-                  Close Letter
-                </button>
+                  <span className={`absolute -top-5 -left-1 text-8xl leading-none font-serif select-none pointer-events-none ${modalStyles.quoteGlyph}`}>&ldquo;</span>
+                  <p className={`font-handwriting text-[1.4rem] leading-relaxed italic relative z-10 text-center ${modalStyles.quoteColor}`}>
+                    {selectedConfession.message}
+                  </p>
+                  <span className={`absolute -bottom-8 -right-1 text-8xl leading-none font-serif select-none pointer-events-none ${modalStyles.quoteGlyph}`}>&rdquo;</span>
+                </motion.div>
+
+                {/* Divider */}
+                <div className={`flex items-center gap-3 mt-2`}>
+                  <div className={`flex-1 h-px ${modalStyles.lineDecor}`} />
+                  <Heart className="w-3 h-3 text-rose-400 fill-rose-400 opacity-60" />
+                  <div className={`flex-1 h-px ${modalStyles.lineDecor}`} />
+                </div>
+
+                {/* Sender badge + tag row */}
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.38 }}
+                  className="flex items-center justify-between"
+                >
+                  {/* Wax seal + from name */}
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 ${modalStyles.sealBg}`}>
+                      ♥
+                    </div>
+                    <div className={`px-3 py-1.5 rounded-full border text-[11px] font-semibold font-handwriting text-lg leading-none ${modalStyles.fromBadge}`}>
+                      {selectedConfession.from}
+                    </div>
+                  </div>
+
+                  {/* Tag */}
+                  <span className={`text-[9px] uppercase tracking-widest px-2.5 py-1 rounded-full border font-bold ${modalStyles.tagBg}`}>
+                    {selectedConfession.desc.split(' ')[0]}
+                  </span>
+                </motion.div>
+
+                {/* Close button full */}
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.45 }}
+                  onClick={() => setSelectedConfession(null)}
+                  className={`w-full mt-1 py-3 rounded-2xl text-sm font-semibold tracking-wide transition-all active:scale-[0.98] ${modalStyles.closeBtnFull}`}
+                >
+                  Seal & Close Letter
+                </motion.button>
               </div>
             </motion.div>
           </motion.div>
