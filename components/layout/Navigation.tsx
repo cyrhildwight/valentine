@@ -29,6 +29,49 @@ export const Navigation: React.FC<NavigationProps> = ({
   const [theme, setTheme] = useState<'vintage' | 'neon' | 'midnight'>('vintage');
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
   const [cooldownRemaining, setCooldownRemaining] = useState<string | null>(null);
+  // PWA install prompt handling
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    // On mount, check if app is already installed or user dismissed prompt
+    if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
+      return;
+    }
+    const dismissed = localStorage.getItem('install_prompt_dismissed') === 'true';
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      const ev = e as any;
+      setDeferredPrompt(ev);
+      if (!dismissed) {
+        ev.prompt();
+        ev.userChoice.then((choice: any) => {
+          if (choice.outcome === 'accepted') {
+            // Installed, clear dismissed flag
+            localStorage.removeItem('install_prompt_dismissed');
+          } else {
+            // User dismissed the native prompt
+            localStorage.setItem('install_prompt_dismissed', 'true');
+          }
+        });
+      }
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    // If the event has already fired before this script runs, trigger prompt now
+    if (!dismissed && (window as any).deferredPrompt) {
+      const ev = (window as any).deferredPrompt;
+      setDeferredPrompt(ev);
+      ev.prompt();
+      ev.userChoice.then((choice: any) => {
+        if (choice.outcome === 'accepted') {
+          localStorage.removeItem('install_prompt_dismissed');
+        } else {
+          localStorage.setItem('install_prompt_dismissed', 'true');
+        }
+      });
+    }
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+}, []);
+
 
   // Monitor cooldown remaining dynamically
   useEffect(() => {
@@ -313,6 +356,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                 Confess Love
               </button>
             </MagneticButton>
+
           </div>
         </div>
       </motion.header >
