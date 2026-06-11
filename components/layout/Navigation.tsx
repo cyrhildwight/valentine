@@ -38,10 +38,6 @@ export const Navigation: React.FC<NavigationProps> = ({
     if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
       return;
     }
-    // Don't show if user already dismissed
-    if (localStorage.getItem('install_prompt_dismissed') === 'true') {
-      return;
-    }
 
     const handleBeforeInstall = (e: Event) => {
       // Prevent the browser's default mini-infobar
@@ -60,18 +56,13 @@ export const Navigation: React.FC<NavigationProps> = ({
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      localStorage.removeItem('install_prompt_dismissed');
-    } else {
-      localStorage.setItem('install_prompt_dismissed', 'true');
-    }
+    await deferredPrompt.userChoice;
     setDeferredPrompt(null);
     setShowInstallBanner(false);
   };
 
   const handleDismissBanner = () => {
-    localStorage.setItem('install_prompt_dismissed', 'true');
+    // Only hide for this session — no localStorage, so it shows again on next reload
     setShowInstallBanner(false);
   };
 
