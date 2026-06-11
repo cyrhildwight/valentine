@@ -1,19 +1,19 @@
 {
   "short_name": "Whisper & Bloom",
-  "name": "Whisper & Bloom — Anonymous Love Confessions",
+  "name": "Whisper & Bloom",
   "description": "A beautiful digital haven for sending and reading anonymous love confessions.",
   "icons": [
     {
-      "src": "/images/rose.webp",
-      "type": "image/webp",
-      "sizes": "512x512",
-      "purpose": "any"
-    },
-    {
-      "src": "/images/rose.png",
+      "src": "/images/logo.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any"
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/logo.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
     }
   ],
   "start_url": "/",

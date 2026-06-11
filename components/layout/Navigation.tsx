@@ -284,10 +284,14 @@ export const Navigation: React.FC<NavigationProps> = ({
           }`}
       >
         <div className="container mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Heart className="w-5 h-5 text-primary fill-primary animate-pulse" />
+          <div className="flex items-center gap-3">
+            <img
+              src="/images/logo.png"
+              alt="Whisper & Bloom logo"
+              className="w-16 h-16 object-contain drop-shadow-lg"
+            />
             <span className="font-display font-bold text-xl tracking-wide text-gradient-pink">
-              WHISPER & BLOOM
+              Whisper &amp; Bloom
             </span>
           </div>
           <div className="flex items-center gap-6">
