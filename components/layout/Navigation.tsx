@@ -5,8 +5,8 @@ import emailjs from '@emailjs/browser';
 import { MagneticButton } from '../animations/MagneticButton';
 
 // Central configuration for your website URL and Domain
-const APP_URL = "https://dwight-valentines.vercel.app/";
-const APP_DOMAIN = "dwight-valentines.vercel.app";
+const APP_URL = "https://confession-dwight.vercel.app/";
+const APP_DOMAIN = "confession-dwight.vercel.app";
 
 interface NavigationProps {
   isModalOpen: boolean;
@@ -15,11 +15,11 @@ interface NavigationProps {
   setTheme: (theme: 'light' | 'dark') => void;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ 
-  isModalOpen, 
-  setIsModalOpen, 
-  theme: appTheme, 
-  setTheme: setAppTheme 
+export const Navigation: React.FC<NavigationProps> = ({
+  isModalOpen,
+  setIsModalOpen,
+  theme: appTheme,
+  setTheme: setAppTheme
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [senderName, setSenderName] = useState('');
@@ -33,7 +33,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   // Monitor cooldown remaining dynamically
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     const checkCooldown = () => {
       const COOLDOWN_TIME = 5 * 60 * 1000;
       const lastSent = localStorage.getItem('last_confession_sent');
@@ -69,7 +69,7 @@ export const Navigation: React.FC<NavigationProps> = ({
       if (interval) clearInterval(interval);
     };
   }, [isModalOpen]);
-  
+
   const { scrollY } = useScroll();
 
   const getPostcardStyle = () => {
@@ -250,7 +250,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     emailjs.send(serviceId, templateId, templateParams, publicKey)
       .then((response) => {
         console.log('SUCCESS!', response.status, response.text);
-        
+
         // Save cooldown timestamp
         localStorage.setItem('last_confession_sent', Date.now().toString());
 
@@ -330,7 +330,7 @@ export const Navigation: React.FC<NavigationProps> = ({
               className="bg-[#fff0f2] dark:bg-[#12090b] border border-primary/10 dark:border-white/5 rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden relative transition-colors duration-300"
             >
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary" />
-              
+
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="absolute top-4 right-4 z-50 p-2 hover:bg-primary/10 dark:hover:bg-white/10 rounded-full transition-colors"
@@ -343,18 +343,16 @@ export const Navigation: React.FC<NavigationProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab('write')}
-                  className={`flex-1 py-3 text-center text-sm font-semibold border-b-2 transition-all ${
-                    activeTab === 'write' ? 'border-primary text-primary' : 'border-transparent text-gray-400'
-                  }`}
+                  className={`flex-1 py-3 text-center text-sm font-semibold border-b-2 transition-all ${activeTab === 'write' ? 'border-primary text-primary' : 'border-transparent text-gray-400'
+                    }`}
                 >
                   Write Confession
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('preview')}
-                  className={`flex-1 py-3 text-center text-sm font-semibold border-b-2 transition-all ${
-                    activeTab === 'preview' ? 'border-primary text-primary' : 'border-transparent text-gray-400'
-                  }`}
+                  className={`flex-1 py-3 text-center text-sm font-semibold border-b-2 transition-all ${activeTab === 'preview' ? 'border-primary text-primary' : 'border-transparent text-gray-400'
+                    }`}
                 >
                   Preview Note
                 </button>
@@ -362,7 +360,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 
               {/* Split Screen Container */}
               <div className="flex flex-col md:flex-row min-h-[500px]">
-                
+
                 {/* Left Side: Form */}
                 <div className={`${activeTab === 'write' ? 'block' : 'hidden'} md:block w-full md:w-1/2 p-6 lg:p-10 max-h-[85vh] md:max-h-none overflow-y-auto mt-4 md:mt-0`}>
                   <div className="flex items-center gap-3 mb-6">
@@ -420,11 +418,10 @@ export const Navigation: React.FC<NavigationProps> = ({
                             type="button"
                             key={t}
                             onClick={() => setTheme(t)}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${
-                              theme === t
+                            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${theme === t
                                 ? 'bg-primary border-primary text-white shadow-sm'
                                 : 'bg-white dark:bg-white/5 border-primary/20 dark:border-white/10 text-charcoal dark:text-gray-400 hover:border-primary/40'
-                            }`}
+                              }`}
                           >
                             {t}
                           </button>
@@ -447,11 +444,10 @@ export const Navigation: React.FC<NavigationProps> = ({
                     <button
                       type="submit"
                       disabled={cooldownRemaining !== null}
-                      className={`w-full py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group text-sm ${
-                        cooldownRemaining !== null
+                      className={`w-full py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group text-sm ${cooldownRemaining !== null
                           ? 'bg-charcoal/20 text-charcoal/40 dark:bg-white/10 dark:text-gray-500 cursor-not-allowed shadow-none'
                           : 'bg-gradient-to-r from-primary to-secondary text-white hover:scale-[1.01] active:scale-[0.99]'
-                      }`}
+                        }`}
                     >
                       {cooldownRemaining !== null ? (
                         <span>Cooldown ({cooldownRemaining} remaining)</span>
@@ -467,16 +463,16 @@ export const Navigation: React.FC<NavigationProps> = ({
 
                 {/* Right Side: Postcard Live Preview */}
                 <div className={`${activeTab === 'preview' ? 'flex' : 'hidden'} md:flex w-full md:w-1/2 bg-[#fdf2f4] dark:bg-black/20 p-8 lg:p-10 flex-col justify-center items-center relative overflow-hidden border-t md:border-t-0 md:border-l border-primary/10 dark:border-white/5`}>
-                  
+
                   {/* Backdrop letter elements */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-                  
+
                   <div className="text-[10px] uppercase font-semibold tracking-[0.25em] text-charcoal/80 dark:text-gray-400 absolute top-4 left-6 select-none hidden md:block">
                     LIVE ENVELOPE PREVIEW
                   </div>
 
                   {/* Envelope Postcard Card - Double Layered Cardstock Frame */}
-                  <div 
+                  <div
                     className={`w-full max-w-sm aspect-[1.58] ${previewStyles.cardstock}`}
                   >
                     {/* Inner note layer */}
@@ -536,7 +532,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                             {/* Dotted address lines for aesthetic */}
                             <div className={`border-b ${previewStyles.dots} border-dotted h-1.5`} />
                             <div className={`border-b ${previewStyles.dots} border-dotted h-1.5`} />
-                            
+
                             {/* App branding link watermarked inside card */}
                             <div className={`text-[7px] mt-2 leading-tight ${previewStyles.subtext}`}>
                               Sent via <a href={APP_URL} target="_blank" rel="noopener noreferrer" className={`hover:underline ${previewStyles.link}`}>Whisper & Bloom</a>
