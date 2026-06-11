@@ -8,6 +8,31 @@ import { MagneticButton } from '../animations/MagneticButton';
 const APP_URL = "https://confession-dwight.vercel.app/";
 const APP_DOMAIN = "confession-dwight.vercel.app";
 
+// EmailJS credentials from environment variables
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID as string;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID as string;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY as string;
+
+// --- Security Utilities ---
+
+/** Strip all HTML/script tags and trim whitespace to prevent XSS in emails */
+const sanitize = (str: string): string =>
+  str.replace(/<[^>]*>/g, '').replace(/[\x00-\x08\x0B\x0E-\x1F\x7F]/g, '').trim();
+
+/** Basic email format validation */
+const isValidEmail = (email: string): boolean =>
+  /^[^\s@]+@[^^\s@]+\.[^\s@]+$/.test(email);
+
+/** Session fingerprint for secondary rate limiting (not PII) */
+const getSessionFingerprint = (): string => {
+  try {
+    const raw = `${navigator.userAgent}|${screen.width}|${screen.height}|${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+    return raw.split('').reduce((hash, ch) => ((hash << 5) - hash + ch.charCodeAt(0)) | 0, 0).toString(36);
+  } catch {
+    return 'fp_unknown';
+  }
+};
+
 interface NavigationProps {
   isModalOpen: boolean;
   setIsModalOpen: (isOpen: boolean) => void;
@@ -161,12 +186,30 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const handleSendLove = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message || !recipientEmail || !recipientName) return;
 
-    // Rate Limit Cooldown (5 minutes to prevent spam)
+    // --- Input Sanitization ---
+    const cleanRecipientName = sanitize(recipientName).slice(0, 80);
+    const cleanSenderName = sanitize(senderName).slice(0, 80) || 'Anonymous';
+    const cleanEmail = sanitize(recipientEmail).slice(0, 254);
+    const cleanMessage = sanitize(message).slice(0, 1000);
+
+    if (!cleanMessage || !cleanEmail || !cleanRecipientName) return;
+
+    // --- Email format validation ---
+    if (!isValidEmail(cleanEmail)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    // --- Rate Limit: localStorage + session fingerprint double-check ---
     const COOLDOWN_TIME = 5 * 60 * 1000;
-    const lastSent = localStorage.getItem('last_confession_sent');
     const now = Date.now();
+    const fp = getSessionFingerprint();
+    const fpKey = `last_sent_${fp}`;
+
+    const lastSentLS = localStorage.getItem('last_confession_sent');
+    const lastSentFP = sessionStorage.getItem(fpKey);
+    const lastSent = lastSentLS || lastSentFP;
 
     if (lastSent) {
       const timeElapsed = now - parseInt(lastSent, 10);
@@ -175,15 +218,15 @@ export const Navigation: React.FC<NavigationProps> = ({
       }
     }
 
-    // EmailJS Configuration
-    const serviceId = "service_wv1hsuf";
-    const templateId = "template_kcdgmrl";
-    const publicKey = "H3ukxoKBdDPTt0kob";
+    // EmailJS Configuration (from environment variables)
+    const serviceId = EMAILJS_SERVICE_ID;
+    const templateId = EMAILJS_TEMPLATE_ID;
+    const publicKey = EMAILJS_PUBLIC_KEY;
 
-    const finalSenderName = senderName.trim() || 'Anonymous';
+    const finalSenderName = cleanSenderName;
 
-    // Append theme context to the message body for EmailJS delivery
-    const formattedMessage = `${message}\n\n[Envelope theme chosen by sender: ${theme.toUpperCase()}]`;
+    // Append theme context to the message body for EmailJS delivery (use sanitized inputs)
+    const formattedMessage = `${cleanMessage}\n\n[Envelope theme chosen by sender: ${theme.toUpperCase()}]`;
 
     // Generate inline style params for HTML email matching
     const getEmailStyles = () => {
@@ -251,12 +294,12 @@ export const Navigation: React.FC<NavigationProps> = ({
     const templateParams = {
       from_name: finalSenderName,
       FROM_NAME: finalSenderName,
-      to_name: recipientName,
-      TO_NAME: recipientName,
-      to_email: recipientEmail,
-      TO_EMAIL: recipientEmail,
-      message: message,
-      MESSAGE: message,
+      to_name: cleanRecipientName,
+      TO_NAME: cleanRecipientName,
+      to_email: cleanEmail,
+      TO_EMAIL: cleanEmail,
+      message: cleanMessage,
+      MESSAGE: cleanMessage,
       formatted_message: formattedMessage,
       FORMATTED_MESSAGE: formattedMessage,
       time: new Date().toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true, month: 'short', day: 'numeric', year: 'numeric' }),
@@ -288,8 +331,10 @@ export const Navigation: React.FC<NavigationProps> = ({
       .then((response) => {
         console.log('SUCCESS!', response.status, response.text);
 
-        // Save cooldown timestamp
-        localStorage.setItem('last_confession_sent', Date.now().toString());
+        // Save cooldown timestamp in both localStorage AND sessionStorage fingerprint
+        const nowStr = Date.now().toString();
+        localStorage.setItem('last_confession_sent', nowStr);
+        sessionStorage.setItem(`last_sent_${getSessionFingerprint()}`, nowStr);
 
         alert(`Your confession has been sent to ${recipientName}!`);
         setIsModalOpen(false);
