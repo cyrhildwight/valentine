@@ -4,15 +4,27 @@
   "description": "A beautiful digital haven for sending and reading anonymous love confessions.",
   "icons": [
     {
-      "src": "/images/logo.png",
+      "src": "images/logo.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     },
     {
-      "src": "/images/logo.png",
+      "src": "images/logo.png",
       "type": "image/png",
       "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logo.png",
+      "type": "image/png",
+      "sizes": "256x256",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logo.png",
+      "type": "image/png",
+      "sizes": "384x384",
       "purpose": "any maskable"
     }
   ],
