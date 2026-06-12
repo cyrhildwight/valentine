@@ -5,6 +5,8 @@ import emailjs from '@emailjs/browser';
 import { MagneticButton } from '../animations/MagneticButton';
 import { PublicConfession } from '../../lib/confessionStore';
 import { containsProfanity } from '../../lib/profanityFilter';
+import { isInAppBrowser } from '../../lib/browserDetect';
+
 
 // Central configuration for your website URL and Domain
 const APP_URL = "https://confession-dwight.vercel.app/";
@@ -64,6 +66,13 @@ export const Navigation: React.FC<NavigationProps> = ({
   // PWA install prompt handling
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [showInAppBanner, setShowInAppBanner] = useState(false);
+
+  useEffect(() => {
+    if (isInAppBrowser()) {
+      setShowInAppBanner(true);
+    }
+  }, []);
 
   useEffect(() => {
     // Don't show if already running as installed PWA
@@ -412,9 +421,36 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   return (
     <>
+      {/* In-App Browser Guidance Banner — fixed at very top of the page */}
+      <AnimatePresence>
+        {showInAppBanner && (
+          <motion.div
+            initial={{ y: -80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -80, opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="fixed top-0 left-0 right-0 z-[200] flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-primary to-secondary shadow-lg border-b border-white/20"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] animate-pulse flex-shrink-0">👉</span>
+              <p className="text-white text-xs font-medium leading-relaxed">
+                Viewing inside Facebook/Messenger? Tap the three dots <span className="font-bold">`...`</span> at the top right and select <span className="font-bold">"Open in Browser"</span> to install this app! 🌸
+              </p>
+            </div>
+            <button
+              onClick={() => setShowInAppBanner(false)}
+              className="p-1 hover:bg-white/20 rounded-full transition-colors flex-shrink-0"
+              aria-label="Dismiss banner"
+            >
+              <X className="w-4 h-4 text-white/80" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* PWA Install Banner — fixed at very top of the page */}
       <AnimatePresence>
-        {showInstallBanner && (
+        {(showInstallBanner && !showInAppBanner) && (
           <motion.div
             initial={{ y: -80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
