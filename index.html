@@ -1,58 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Eternal Bloom | A Celebration of Grace</title>
+  <title>Whisper & Bloom | Anonymous Love Confessions</title>
   <meta name="description"
-    content="A beautiful digital celebration of love and grace for Valentine's Day. Explore the floral symphony and cherished memories.">
-  <meta name="keywords" content="Valentine's Day, Love, Grace, Eternal Bloom, Digital Card, Celebration">
-  <meta name="author" content="Your Name">
+    content="A beautiful digital haven for sending and reading anonymous love confessions. Speak your heart, drop a hint, or write a secret love letter.">
+  <meta name="keywords" content="Anonymous Confessions, Love Letters, Crush, Secrets, Whisper, Flowers, Romance">
+  <meta name="author" content="Cyrhil Dwight Lozano">
   <link rel="canonical" href="https://dwight-valentines.vercel.app/">
   <link rel="icon" type="image/webp" href="/images/rose.webp" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://dwight-valentines.vercel.app/">
-  <meta property="og:title" content="Eternal Bloom | A Celebration of Grace">
+  <meta property="og:title" content="Whisper & Bloom | Anonymous Love Confessions">
   <meta property="og:description"
-    content="A beautiful digital celebration of love and grace for Valentine's Day. Explore the floral symphony and cherished memories.">
+    content="A beautiful digital haven for sending and reading anonymous love confessions. Speak your heart, drop a hint, or write a secret love letter.">
   <meta property="og:image" content="https://dwight-valentines.vercel.app/images/hero-rose.webp">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://dwight-valentines.vercel.app/">
-  <meta property="twitter:title" content="Eternal Bloom | A Celebration of Grace">
+  <meta property="twitter:title" content="Whisper & Bloom | Anonymous Love Confessions">
   <meta property="twitter:description"
-    content="A beautiful digital celebration of love and grace for Valentine's Day. Explore the floral symphony and cherished memories.">
+    content="A beautiful digital haven for sending and reading anonymous love confessions. Speak your heart, drop a hint, or write a secret love letter.">
   <meta property="twitter:image" content="https://dwight-valentines.vercel.app/images/hero-rose.webp">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Architects+Daughter&family=Caveat:wght@400;700&family=Special+Elite&family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
+            // Light Theme Hues
             primary: '#E11D48',      // Deep Rose
             secondary: '#F472B6',    // Soft Pink  
             accent: '#FDE68A',       // Champagne Gold
             dark: '#881337',         // Burgundy
             cream: '#FFE4E6',        // Soft Pink background
             charcoal: '#4C0519',     // Deep Burgundy text
+
+            // Obsidian Dark Theme Hues
+            obsidian: '#0A0506',     // Dark Obsidian background
+            obsidianCard: '#12090B', // Dark card
+            obsidianText: '#F3F4F6', // Dark mode text
           },
           fontFamily: {
-            display: ['Playfair Display', 'serif'],
+            display: ['Outfit', 'sans-serif'],
             body: ['Inter', 'sans-serif'],
-            accent: ['Cormorant Garamond', 'serif'],
+            accent: ['Cormorant Garamond', 'serif'], // Elegant serif accent for light mode
+            handwriting: ['Patrick Hand', 'Architects Daughter', 'Caveat', 'cursive'],
+            typewriter: ['Special Elite', 'monospace'],
           },
           animation: {
             'spin-slow': 'spin 20s linear infinite',
@@ -69,14 +78,72 @@
     }
   </script>
   <style>
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overflow: clip;
+    }
+
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+
+    .lenis.lenis-smooth iframe {
+      pointer-events: none;
+    }
+
     body {
+      overflow-x: hidden;
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    html:not(.dark) body {
       background-color: #FFE4E6;
       color: #4C0519;
-      overflow-x: hidden;
+    }
+
+    html.dark body {
+      background-color: #0A0506;
+      color: #F3F4F6;
+    }
+
+    /* Custom dark scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    html:not(.dark) ::-webkit-scrollbar-track {
+      background: #FFE4E6;
+    }
+
+    html:not(.dark) ::-webkit-scrollbar-thumb {
+      background: #F472B6;
+      border-radius: 4px;
+    }
+
+    html.dark ::-webkit-scrollbar-track {
+      background: #0A0506;
+    }
+
+    html.dark ::-webkit-scrollbar-thumb {
+      background: #271418;
+      border-radius: 4px;
+    }
+
+    html.dark ::-webkit-scrollbar-thumb:hover {
+      background: #F43F5E;
     }
 
     .text-gradient-gold {
-      background: linear-gradient(135deg, #B45309 0%, #FDE68A 50%, #B45309 100%);
+      background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 50%, #F59E0B 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -85,7 +152,7 @@
     }
 
     .text-gradient-pink {
-      background: linear-gradient(135deg, #E11D48 0%, #F472B6 100%);
+      background: linear-gradient(135deg, #F43F5E 0%, #EC4899 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -98,10 +165,55 @@
     }
 
     .glass-card {
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(24, 17, 19, 0.4);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Push pin decoration for sticky notes */
+    .push-pin {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 14px;
+      background-color: #ef4444;
+      /* Pin top red color */
+      border-radius: 50%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15), inset 0 -2px 3px rgba(0, 0, 0, 0.25);
+      z-index: 20;
+    }
+
+    .push-pin::after {
+      content: '';
+      position: absolute;
+      top: 10px;
+      left: 5px;
+      width: 2px;
+      height: 12px;
+      background-color: #94a3b8;
+      /* Pin metal needle */
+      transform: rotate(15deg);
+      border-radius: 1px;
+    }
+
+    .obsidian-panel {
+      background: rgba(18, 9, 11, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(244, 63, 94, 0.08);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    .cork-board {
+      background-color: #edd3bc;
+      background-image: radial-gradient(#dca47b 15%, transparent 16%), radial-gradient(#dca47b 15%, transparent 16%);
+      background-size: 16px 16px;
+      background-position: 0 0, 8px 8px;
+      border: 12px solid #5c4033;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
     }
   </style>
   <script type="importmap">
@@ -111,7 +223,8 @@
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/",
     "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
-    "framer-motion": "https://esm.sh/framer-motion@^12.34.0"
+    "framer-motion": "https://esm.sh/framer-motion@^12.34.0",
+    "lenis": "https://esm.sh/lenis@1.1.18"
   }
 }
 </script>
