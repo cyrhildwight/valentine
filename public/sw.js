@@ -1,4 +1,4 @@
-const CACHE_NAME = 'whisper-bloom-v1';
+const CACHE_NAME = 'whisper-bloom-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -42,6 +42,31 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
+  const url = new URL(e.request.url);
+  const isIndexPage = url.pathname === '/' || url.pathname === '/index.html';
+
+  // For index.html and root path, use Network First strategy.
+  // This ensures users always get the latest version after a deployment, preventing blank screen issues.
+  if (isIndexPage) {
+    e.respondWith(
+      fetch(e.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(e.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(e.request);
+        })
+    );
+    return;
+  }
+
+  // Cache First strategy for other static assets (images, etc.)
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
       if (cachedResponse) {
