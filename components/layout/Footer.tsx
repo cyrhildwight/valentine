@@ -3,9 +3,11 @@ import { Heart, Instagram, Facebook, Shield, ArrowUp } from 'lucide-react';
 
 interface FooterProps {
   theme: 'light' | 'dark';
+  isAdmin: boolean;
+  onAdminClick: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ theme }) => {
+export const Footer: React.FC<FooterProps> = ({ theme, isAdmin, onAdminClick }) => {
   const [heartsCount, setHeartsCount] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('universe_hearts');
@@ -159,7 +161,17 @@ export const Footer: React.FC<FooterProps> = ({ theme }) => {
         {/* Footer Bottom Bar */}
         <div className="border-t border-primary/10 dark:border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-charcoal/60 dark:text-gray-400">
           <div className="text-center sm:text-left leading-relaxed">
-            <p>© 2026 Cyrhil Dwight Lozano. All rights reserved.</p>
+            <p>
+              © 2026 Cyrhil Dwight Lozano. All rights reserved.
+              <button 
+                onClick={onAdminClick}
+                className={`ml-2 opacity-60 hover:opacity-100 transition-opacity hover:underline font-semibold font-body ${
+                  isAdmin ? 'text-primary dark:text-rose-400' : ''
+                }`}
+              >
+                {isAdmin ? '• Admin Portal (Active)' : '• Admin'}
+              </button>
+            </p>
             <p className="mt-1 opacity-80">
               Designed with <Heart className="w-3.5 h-3.5 text-primary inline fill-primary" /> for a safer, kinder digital space.
             </p>

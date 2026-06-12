@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
-import { Heart, X, Send, Sun, Moon } from 'lucide-react';
+import { Heart, X, Send, Sun, Moon, Pin } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import { MagneticButton } from '../animations/MagneticButton';
+import { PublicConfession } from '../../lib/confessionStore';
+import { containsProfanity } from '../../lib/profanityFilter';
 
 // Central configuration for your website URL and Domain
 const APP_URL = "https://confession-dwight.vercel.app/";
@@ -21,7 +23,7 @@ const sanitize = (str: string): string =>
 
 /** Basic email format validation */
 const isValidEmail = (email: string): boolean =>
-  /^[^\s@]+@[^^\s@]+\.[^\s@]+$/.test(email);
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 /** Session fingerprint for secondary rate limiting (not PII) */
 const getSessionFingerprint = (): string => {
@@ -38,13 +40,15 @@ interface NavigationProps {
   setIsModalOpen: (isOpen: boolean) => void;
   theme: 'light' | 'dark';
   setTheme: (theme: 'light' | 'dark') => void;
+  onAddConfession: (confession: Omit<PublicConfession, 'id' | 'timestamp' | 'desc' | 'rotation'>) => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
   isModalOpen,
   setIsModalOpen,
   theme: appTheme,
-  setTheme: setAppTheme
+  setTheme: setAppTheme,
+  onAddConfession
 }) => {
   const [scrolled, setScrolled] = useState(false);
   const [senderName, setSenderName] = useState('');
@@ -54,6 +58,9 @@ export const Navigation: React.FC<NavigationProps> = ({
   const [theme, setTheme] = useState<'vintage' | 'neon' | 'midnight'>('vintage');
   const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
   const [cooldownRemaining, setCooldownRemaining] = useState<string | null>(null);
+  const [deliveryMethod, setDeliveryMethod] = useState<'email' | 'board'>('email');
+  const [validationError, setValidationError] = useState<string | null>(null);
+
   // PWA install prompt handling
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
@@ -91,8 +98,13 @@ export const Navigation: React.FC<NavigationProps> = ({
     setShowInstallBanner(false);
   };
 
+  // Reset validation error when modal state changes
+  useEffect(() => {
+    setValidationError(null);
+  }, [isModalOpen]);
 
   // Monitor cooldown remaining dynamically
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
@@ -193,12 +205,28 @@ export const Navigation: React.FC<NavigationProps> = ({
     const cleanEmail = sanitize(recipientEmail).slice(0, 254);
     const cleanMessage = sanitize(message).slice(0, 1000);
 
-    if (!cleanMessage || !cleanEmail || !cleanRecipientName) return;
+    if (!cleanMessage || !cleanRecipientName) return;
 
-    // --- Email format validation ---
-    if (!isValidEmail(cleanEmail)) {
-      alert('Please enter a valid email address.');
+    // --- Profanity Check ---
+    if (
+      containsProfanity(cleanRecipientName) ||
+      containsProfanity(cleanMessage) ||
+      (cleanSenderName !== 'Anonymous' && containsProfanity(cleanSenderName))
+    ) {
+      setValidationError('Please keep your names and message respectful! Offensive language is not allowed.');
       return;
+    }
+
+
+    if (deliveryMethod === 'email') {
+      if (!cleanEmail) {
+        alert('Please enter a recipient email address.');
+        return;
+      }
+      if (!isValidEmail(cleanEmail)) {
+        alert('Please enter a valid email address.');
+        return;
+      }
     }
 
     // --- Rate Limit: localStorage + session fingerprint double-check ---
@@ -216,6 +244,31 @@ export const Navigation: React.FC<NavigationProps> = ({
       if (timeElapsed < COOLDOWN_TIME) {
         return;
       }
+    }
+
+    if (deliveryMethod === 'board') {
+      onAddConfession({
+        to: cleanRecipientName,
+        from: cleanSenderName,
+        message: cleanMessage,
+        theme
+      });
+
+      // Save cooldown timestamp in both localStorage AND sessionStorage fingerprint
+      const nowStr = Date.now().toString();
+      localStorage.setItem('last_confession_sent', nowStr);
+      sessionStorage.setItem(`last_sent_${getSessionFingerprint()}`, nowStr);
+
+      alert(`Your confession to ${cleanRecipientName} has been pinned to the Confession Board!`);
+      setIsModalOpen(false);
+      setSenderName('');
+      setRecipientName('');
+      setRecipientEmail('');
+      setMessage('');
+      setTheme('vintage');
+      setActiveTab('write');
+      setValidationError(null);
+      return;
     }
 
     // EmailJS Configuration (from environment variables)
@@ -344,6 +397,7 @@ export const Navigation: React.FC<NavigationProps> = ({
         setMessage('');
         setTheme('vintage');
         setActiveTab('write');
+        setValidationError(null);
       }, (err) => {
         console.log('FAILED...', err);
         alert('Failed to send message: ' + JSON.stringify(err));
@@ -490,34 +544,77 @@ export const Navigation: React.FC<NavigationProps> = ({
                     </div>
                     <div>
                       <h3 className="font-display font-bold text-2xl text-charcoal dark:text-white">Write a Confession</h3>
-                      <p className="text-charcoal/60 dark:text-gray-400 text-xs">Send a secret love letter safely to their inbox.</p>
+                      <p className="text-charcoal/60 dark:text-gray-400 text-xs">
+                        {deliveryMethod === 'email'
+                          ? "Send a secret love letter safely to their inbox."
+                          : "Pin your anonymous heart's secret onto the public board."
+                        }
+                      </p>
                     </div>
                   </div>
 
                   <form onSubmit={handleSendLove} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal/60 dark:text-gray-400 mb-1.5">Delivery Method</label>
+                      <div className="grid grid-cols-2 gap-2 bg-white/40 dark:bg-white/5 p-1 rounded-xl border border-primary/10 dark:border-white/5">
+                        <button
+                          type="button"
+                          onClick={() => setDeliveryMethod('email')}
+                          className={`py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
+                            deliveryMethod === 'email'
+                              ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-sm'
+                              : 'text-charcoal/70 dark:text-gray-400 hover:text-charcoal dark:hover:text-white'
+                          }`}
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                          <span>Secret Email</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeliveryMethod('board')}
+                          className={`py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${
+                            deliveryMethod === 'board'
+                              ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-sm'
+                              : 'text-charcoal/70 dark:text-gray-400 hover:text-charcoal dark:hover:text-white'
+                          }`}
+                        >
+                          <Pin className="w-3.5 h-3.5" />
+                          <span>Public Board</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className={deliveryMethod === 'email' ? "grid grid-cols-2 gap-4" : "grid grid-cols-1"}>
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal/60 dark:text-gray-400 mb-1">To (Name)</label>
                         <input
                           type="text"
                           value={recipientName}
-                          onChange={(e) => setRecipientName(e.target.value)}
+                          onChange={(e) => {
+                            setRecipientName(e.target.value);
+                            if (validationError) setValidationError(null);
+                          }}
                           placeholder="Their Name"
                           className="w-full px-4 py-2.5 rounded-xl border border-primary/20 dark:border-white/10 bg-white dark:bg-white/5 text-charcoal dark:text-white placeholder:text-charcoal/40 dark:placeholder:text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all"
                           required
                         />
                       </div>
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal/60 dark:text-gray-400 mb-1">To (Email)</label>
-                        <input
-                          type="email"
-                          value={recipientEmail}
-                          onChange={(e) => setRecipientEmail(e.target.value)}
-                          placeholder="their@email.com"
-                          className="w-full px-4 py-2.5 rounded-xl border border-primary/20 dark:border-white/10 bg-white dark:bg-white/5 text-charcoal dark:text-white placeholder:text-charcoal/40 dark:placeholder:text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all"
-                          required
-                        />
-                      </div>
+                      {deliveryMethod === 'email' && (
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal/60 dark:text-gray-400 mb-1">To (Email)</label>
+                          <input
+                            type="email"
+                            value={recipientEmail}
+                            onChange={(e) => {
+                              setRecipientEmail(e.target.value);
+                              if (validationError) setValidationError(null);
+                            }}
+                            placeholder="their@email.com"
+                            className="w-full px-4 py-2.5 rounded-xl border border-primary/20 dark:border-white/10 bg-white dark:bg-white/5 text-charcoal dark:text-white placeholder:text-charcoal/40 dark:placeholder:text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all"
+                            required
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div>
@@ -525,7 +622,10 @@ export const Navigation: React.FC<NavigationProps> = ({
                       <input
                         type="text"
                         value={senderName}
-                        onChange={(e) => setSenderName(e.target.value)}
+                        onChange={(e) => {
+                          setSenderName(e.target.value);
+                          if (validationError) setValidationError(null);
+                        }}
                         placeholder="Leave blank for Anonymous"
                         className="w-full px-4 py-2.5 rounded-xl border border-primary/20 dark:border-white/10 bg-white dark:bg-white/5 text-charcoal dark:text-white placeholder:text-charcoal/40 dark:placeholder:text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all"
                       />
@@ -554,13 +654,22 @@ export const Navigation: React.FC<NavigationProps> = ({
                       <label className="block text-xs font-semibold uppercase tracking-wider text-charcoal/60 dark:text-gray-400 mb-1">Your Confession</label>
                       <textarea
                         value={message}
-                        onChange={(e) => setMessage(e.target.value)}
+                        onChange={(e) => {
+                          setMessage(e.target.value);
+                          if (validationError) setValidationError(null);
+                        }}
                         placeholder="Whisper your heart's secret..."
                         rows={4}
                         className="w-full px-4 py-2.5 rounded-xl border border-primary/20 dark:border-white/10 bg-white dark:bg-white/5 text-charcoal dark:text-white placeholder:text-charcoal/40 dark:placeholder:text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all resize-none"
                         required
                       />
                     </div>
+
+                    {validationError && (
+                      <div className="p-3 bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 text-red-500 dark:text-red-400 rounded-xl text-xs font-semibold text-center animate-pulse">
+                        {validationError}
+                      </div>
+                    )}
 
                     <button
                       type="submit"
@@ -572,10 +681,15 @@ export const Navigation: React.FC<NavigationProps> = ({
                     >
                       {cooldownRemaining !== null ? (
                         <span>Cooldown ({cooldownRemaining} remaining)</span>
+                      ) : deliveryMethod === 'email' ? (
+                        <>
+                          <span>Send Secret Confession</span>
+                          <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </>
                       ) : (
                         <>
-                          <span>Send Confession</span>
-                          <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          <span>Pin to Confession Board</span>
+                          <Pin className="w-4 h-4 group-hover:scale-110 transition-transform" />
                         </>
                       )}
                     </button>
@@ -589,7 +703,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
                   <div className="text-[10px] uppercase font-semibold tracking-[0.25em] text-charcoal/80 dark:text-gray-400 absolute top-4 left-6 select-none hidden md:block">
-                    LIVE ENVELOPE PREVIEW
+                    {deliveryMethod === 'email' ? 'LIVE ENVELOPE PREVIEW' : 'LIVE BOARD POST PREVIEW'}
                   </div>
 
                   {/* Envelope Postcard Card - Double Layered Cardstock Frame */}
@@ -674,7 +788,10 @@ export const Navigation: React.FC<NavigationProps> = ({
 
                   {/* Desktop Preview Hint */}
                   <p className="text-[11px] text-charcoal/60 dark:text-gray-400 text-center max-w-xs mt-6 leading-normal hidden md:block font-body">
-                    This shows how your confession looks. Recipient gets an email detailing your message with this visual envelope theme notation.
+                    {deliveryMethod === 'email'
+                      ? "This shows how your confession looks. Recipient gets an email detailing your message with this visual envelope theme notation."
+                      : "This shows how your confession will look. It will be pinned publicly to the Confession Board on the website."
+                    }
                   </p>
                 </div>
               </div>
